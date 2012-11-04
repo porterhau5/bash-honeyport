@@ -36,6 +36,7 @@ sip,datestamp,timestamp,timezone,timezoneoffset,epoch
 * timezone: e.g., EDT
 * timezoneoffset: e.g., -0400
 * epoch: Seconds since Jan 1, 1970
+
 I provided a few different date and timestamp formats so users already have a few different options for correlation at their disposal.
 
 TODO
