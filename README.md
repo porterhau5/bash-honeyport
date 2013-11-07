@@ -42,4 +42,3 @@ I provided a few different date and timestamp formats so users already have a fe
 TODO
 ----
 * Incorporate something equivalent for ubuntu/debian
-* Put some more general checks in (e.g., valid input params)
