@@ -23,12 +23,13 @@
 if [[ -z $1 ]]; then
   echo "Usage: $0 <TCP port to listen on>"
   echo "Exiting."
-  exit
+  exit 1
 else
   # Verify port is a digit and in range
   port=$(echo "$1" | grep -x "[0-9]\{1,5\}")
   if [[ $port -lt 1 || $port -gt 65535 ]]; then
     echo "Port $1 is out of range. Ports should be between 1-65535. Exiting."
+    exit 1
   else
     # By default, when a session ends with a netcat listener, the netcat process
     # will die. The while loop will kick up a new nc process after each session.
