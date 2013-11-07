@@ -29,9 +29,9 @@ else
   # will die. This while loop will kick up a new nc process after each session.
   while :; do
     # The next line does the following:
-    #    sets up netcat listener on $1
-    #    sends all received input to /dev/null
-    #    grep and cut commands extract source IP, saves it to $ip
+    #   sets up netcat listener on $1
+    #   sends all received input to /dev/null
+    #   grep and cut commands extract source IP, stores it in $ip
     ip="$(nc -v -l "$1" 2>&1 1>/dev/null | grep from | cut -d\  -f 3)"
     # iptables rule to drop source IP
     iptables -I INPUT -p tcp -s "${ip}" -j DROP
@@ -40,6 +40,6 @@ else
     # Send some metadata information to a log file
     echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.txt
     # Send some metadata information to the console
-    echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T, now restarting...")"
+    echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T"), now restarting..."
   done
 fi
