@@ -8,19 +8,19 @@ Usage
 Navigate to install dir:
 <pre>cd /root/hp/</pre>
 Specify port for netcat to listen on:
-<pre>./hp-redhat.sh &lt;port to listen on&gt;</pre>
+<pre>./hp-redhat &lt;port to listen on&gt;</pre>
 
-Example: <pre>./hp-redhat.sh 4444</pre>
+Example: <pre>./hp-redhat 4444</pre>
 
 Requirements
 ------------
-netcat should be installed on the system. netcat and iptables should be on your $PATH.
+netcat should be installed on the system. netcat and iptables should be in your $PATH.
 
 Background
 ----------
 I first came across this notion of a "honeyport" in a presentation I attended by John Strand titled "Offensive Countermeasures". The website for the Offensive Countermeasures movement can be found here: http://www.offensivecountermeasures.com/
 
-The idea behind this tool is to identify and block any hosts that connect to a port on a system that has no legitimate purpose. Hosts that do so are either misconfigured, malicious, or compromised, and should be responded to approrpriately. It's ideal to integrate the output log from this tool into a SIM/SIEM.
+The idea behind this tool is to identify and block any hosts that connect to a port on a system that has no legitimate purpose. Hosts that do so are either misconfigured, malicious, or compromised, and should be responded to appropriately. It's ideal to integrate the output log from this tool into a SIM/SIEM.
 
 This tool works by setting up a netcat listener on a specified TCP port. Any host that makes a full connection (completes the TCP 3-Way Handshake) will be added to an iptables DROP rule. All input received from the offending host after the 3-WHS is routed to /dev/null. Once the connection terminates, the iptables DROP rule is added, iptables are saved, some metadata is sent to a log file, and the netcat process is restarted.
 
