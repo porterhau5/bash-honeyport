@@ -8,7 +8,7 @@ Usage
 Navigate to install dir:
 <pre>cd /root/hp/</pre>
 Specify port for netcat to listen on:
-<pre>./hp-redhat &lt;port to listen on&gt;</pre>
+<pre>./hp-redhat &lt;TCP port to listen on&gt;</pre>
 
 Example: <pre>./hp-redhat 4444</pre>
 
@@ -42,4 +42,4 @@ I provided a few different date and timestamp formats so users already have a fe
 TODO
 ----
 * Incorporate something equivalent for ubuntu/debian
-* Put some more general checks in (e.g., valid input params, port is not in use)
+* Put some more general checks in (e.g., valid input params)

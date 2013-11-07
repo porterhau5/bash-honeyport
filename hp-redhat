@@ -8,6 +8,7 @@
 # | Date: 2013/11/07                                                           |
 # |                                                                            |
 # | Usage: ./hp-redhat <port>                                                  |
+# |   <port> should be a value between 1-65535                                 |
 # |                                                                            |
 # | Description: Uses netcat to set up a listener on a specified port. If a    |
 # |   host makes a full TCP connection (3-WHS) on this port, then add an       |
@@ -24,22 +25,28 @@ if [[ -z $1 ]]; then
   echo "Exiting"
   exit
 else
-  echo "Starting honeyport on $1/tcp"
   # By default, when a session ends with a netcat listener, the netcat process
   # will die. This while loop will kick up a new nc process after each session.
   while :; do
-    # The next line does the following:
-    #   sets up netcat listener on $1
-    #   sends all received input to /dev/null
-    #   grep and cut commands extract source IP, stores it in $ip
-    ip="$(nc -v -l "$1" 2>&1 1>/dev/null | grep from | cut -d\  -f 3)"
-    # iptables rule to drop source IP
-    iptables -I INPUT -p tcp -s "${ip}" -j DROP
-    # Save iptables with new rule
-    /etc/init.d/iptables save 1> /dev/null
-    # Send some metadata information to a log file
-    echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.txt
-    # Send some metadata information to the console
-    echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T"), now restarting..."
+    # See if the port is already in use. If so, exit.
+    if [[ "$(lsof -i -n -P | grep ":$1 " | wc -l)" -ne 0 ]]; then
+      echo "Error: $1/tcp is already in use. Exiting."
+      exit 1
+    else
+      echo "Starting honeyport on $1/tcp"
+      # The next line does the following:
+      #   sets up netcat listener on $1
+      #   sends all received input to /dev/null
+      #   grep and cut commands extract source IP, saves it to $ip
+      ip="$(nc -v -l "$1" 2>&1 1>/dev/null | grep from | cut -d\  -f 3)"
+      # iptables rule to drop source IP
+      iptables -I INPUT -p tcp -s "${ip}" -j DROP
+      # Save iptables with new rule
+      /etc/init.d/iptables save 1> /dev/null
+      # Send some metadata information to a log file
+      echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.txt
+      # Send some metadata information to the console
+      echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T"), now restarting..."
+    fi
   done
 fi
