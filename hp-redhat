@@ -5,7 +5,8 @@
 # |                                                                            |
 # | Purpose: Honeyport for redhat systems                                      |
 # |                                                                            |
-# | Date: 2013/11/07                                                           |
+# | Date Created: 2012/10/26                                                   |
+# | Date Modified: 2013/11/08                                                  |
 # |                                                                            |
 # | Usage: ./hp-redhat <port>                                                  |
 # |   <port> should be a value between 1-65535                                 |
@@ -16,7 +17,7 @@
 # |   blacklist hosts that are connecting to ports that they have no legitimate|
 # |   reason to connect to.                                                    |
 # |                                                                            |
-# |   Some metadata is logged to list.txt                                      |
+# |   Some metadata is logged to list.csv                                      |
 # +----------------------------------------------------------------------------+
 
 # Check for input param
@@ -35,7 +36,7 @@ else
     # will die. The while loop will kick up a new nc process after each session.
     while :; do
       # See if the port is already in use. If so, exit.
-      if [[ "$(lsof -i -n -P | grep ":$port " | wc -l)" -ne 0 ]]; then
+      if [[ "$(lsof -i4TCP -n -P | grep ":$port " | wc -l)" -ne 0 ]]; then
         echo "Error: $port/tcp is already in use. Exiting."
         exit 1
       else
@@ -50,7 +51,7 @@ else
         # Save iptables with new rule
         /etc/init.d/iptables save 1> /dev/null
         # Send some metadata information to a log file
-        echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.txt
+        echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.csv
         # Send some metadata information to the console
         echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T"), now restarting..."
       fi
