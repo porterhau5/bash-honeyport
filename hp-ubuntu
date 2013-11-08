@@ -1,0 +1,62 @@
+#!/bin/bash
+
+# +----------------------------------------------------------------------------+
+# | Name: hp-ubuntu                                                            |
+# |                                                                            |
+# | Purpose: Honeyport for ubuntu systems                                      |
+# |                                                                            |
+# | Date Created: 2013/11/07                                                   |
+# | Date Created: 2013/11/08                                                   |
+# |                                                                            |
+# | Usage: ./hp-ubuntu <port>                                                  |
+# |   <port> should be a value between 1-65535                                 |
+# |                                                                            |
+# | Description: Uses netcat to set up a listener on a specified port. If a    |
+# |   host makes a full TCP connection (3-WHS) on this port, then add an       |
+# |   iptables rule to block all traffic from that host. The idea is to        |
+# |   blacklist hosts that are connecting to ports that they have no legitimate|
+# |   reason to connect to.                                                    |
+# |                                                                            |
+# |   Some metadata is logged to list.csv                                      |
+# |                                                                            |
+# |   Updated iptables rules are written to /etc/iptables.rules                |
+# +----------------------------------------------------------------------------+
+
+# Check for input param
+if [[ -z $1 ]]; then
+  echo "Usage: $0 <TCP port to listen on>"
+  echo "Exiting."
+  exit 1
+else
+  # Verify port is a digit and in range
+  port=$(echo "$1" | grep -x "[0-9]\{1,5\}")
+  if [[ $port -lt 1 || $port -gt 65535 ]]; then
+    echo "Port $1 is out of range. Ports should be between 1-65535. Exiting."
+    exit 1
+  else
+    # By default, when a session ends with a netcat listener, the netcat process
+    # will die. The while loop will kick up a new nc process after each session.
+    while :; do
+      # See if the port is already in use. If so, exit.
+      if [[ "$(lsof -i4TCP -n -P | grep ":$port " | wc -l)" -ne 0 ]]; then
+        echo "Error: $port/tcp is already in use. Exiting."
+        exit 1
+      else
+        echo "Starting honeyport on $port/tcp"
+        # The next line does the following:
+        #   sets up netcat listener on $port
+        #   sends all received input to /dev/null
+        #   grep and cut commands extract source IP, saves it to $ip
+        ip="$(nc -v -l "$port" 2>&1 1>/dev/null | grep from | cut -d\  -f 3)"
+        # iptables rule to drop source IP
+        iptables -I INPUT -p tcp -s "${ip}" -j DROP
+        # Save iptables with new rule
+        iptables-save > /etc/iptables.rules
+        # Send some metadata information to a log file
+        echo "${ip},$(date +"%Y-%m-%d,%T,%Z,%z,%s")" >> list.csv
+        # Send some metadata information to the console
+        echo "Caught: ${ip} on $(date +"%Y-%m-%d at %T"), now restarting..."
+      fi
+    done
+  fi
+fi
