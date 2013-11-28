@@ -6,7 +6,7 @@
 # | Purpose: Honeyport for redhat systems                                      |
 # |                                                                            |
 # | Date Created: 2012/10/26                                                   |
-# | Date Modified: 2013/11/08                                                  |
+# | Date Modified: 2013/11/27                                                  |
 # |                                                                            |
 # | Usage: ./hp-redhat <port>                                                  |
 # |   <port> should be a value between 1-65535                                 |
